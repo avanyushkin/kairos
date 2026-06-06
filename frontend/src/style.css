@@ -503,6 +503,34 @@ img { display: block; max-width: 100%; }
 .create-account-btn:hover { background-color: rgba(189, 170, 109, 0.05); }
 .create-account-btn:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 2px; }
 
+/* Auth — logged-in state */
+.auth-card__user {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 0;
+  text-align: center;
+}
+.auth-card__user-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--color-gold);
+}
+.auth-card__user-name {
+  font-family: 'Bruno Ace', sans-serif;
+  font-size: 18px;
+  color: var(--color-white);
+  margin: 0;
+}
+.auth-card__user-email {
+  font-size: 14px;
+  color: rgba(255,255,255,0.6);
+  margin: 0;
+}
+
 /* ============================================================
    CRYPTO SECTION  (dark navy, h≈1174px at 768px)
    ============================================================ */

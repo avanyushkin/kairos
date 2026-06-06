@@ -1,22 +1,53 @@
-// ── Config ────────────────────────────────────────────────────
-// Replace with your real Client ID from Google Cloud Console:
-// https://console.cloud.google.com/apis/credentials
 const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
+
+const BACKEND_URL = 'http://localhost:8080';
+
+// ── Backend verification ──────────────────────────────────────
+
+interface UserInfo {
+  email: string;
+  name: string;
+  picture: string;
+}
+
+async function verifyWithBackend(token: string): Promise<UserInfo> {
+  const res = await fetch(`${BACKEND_URL}/api/auth/google`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token }),
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({})) as { error?: string };
+    throw new Error(body.error ?? `HTTP ${res.status}`);
+  }
+
+  return res.json() as Promise<UserInfo>;
+}
+
+// ── UI state ──────────────────────────────────────────────────
+
+function showUser(user: UserInfo): void {
+  const form   = document.getElementById('auth-form')!;
+  const panel  = document.getElementById('auth-user')!;
+  const avatar = document.getElementById('auth-user-avatar') as HTMLImageElement;
+  const name   = document.getElementById('auth-user-name')!;
+  const email  = document.getElementById('auth-user-email')!;
+
+  avatar.src       = user.picture;
+  name.textContent = user.name;
+  email.textContent = user.email;
+
+  form.hidden  = true;
+  panel.hidden = false;
+}
 
 // ── Google Sign-In ────────────────────────────────────────────
 
 function handleGoogleCredential(response: CredentialResponse): void {
-  // response.credential is a signed JWT. Verify it on your backend before trusting.
-  // POST /api/auth/google  { token: response.credential }
-  console.info('[Kairos] Google Sign-In successful.');
-
-  try {
-    const payloadB64 = response.credential.split('.')[1];
-    const payload = JSON.parse(atob(payloadB64)) as { name?: string; email?: string };
-    console.info('[Kairos] User:', payload.name, payload.email);
-  } catch { /* ignore decode errors */ }
-
-  // TODO: redirect or update UI after successful sign-in
+  verifyWithBackend(response.credential)
+    .then(showUser)
+    .catch((err: Error) => console.error('[Kairos] Auth error:', err.message));
 }
 
 function initGoogleSignIn(): void {
@@ -28,10 +59,10 @@ function initGoogleSignIn(): void {
   }
 
   window.google.accounts.id.initialize({
-    client_id:            GOOGLE_CLIENT_ID,
-    callback:             handleGoogleCredential,
+    client_id:             GOOGLE_CLIENT_ID,
+    callback:              handleGoogleCredential,
     cancel_on_tap_outside: false,
-    context:              'signin',
+    context:               'signin',
   });
 }
 
@@ -42,7 +73,6 @@ export function initAuth(): void {
   const createAccountBtn = document.getElementById('create-account-btn')!;
   const tabButtons       = document.querySelectorAll<HTMLButtonElement>('.auth-card__tab');
 
-  // Personal / Business tab switching
   tabButtons.forEach(tab => {
     tab.addEventListener('click', () => {
       tabButtons.forEach(t => {
@@ -54,7 +84,6 @@ export function initAuth(): void {
     });
   });
 
-  // Wire Google Sign-In once GSI script is ready
   const gsiReady = (): void => {
     if (window.google) initGoogleSignIn();
     else window.addEventListener('load', initGoogleSignIn, { once: true });
@@ -74,6 +103,5 @@ export function initAuth(): void {
     window.google.accounts.id.prompt();
   });
 
-  // "Create account" triggers the same Google flow
   createAccountBtn.addEventListener('click', () => googleSignInBtn.click());
 }
