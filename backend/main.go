@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/go-chi/chi/v5"
+	"kairos/backend/handlers"
 	"kairos/backend/middleware"
 )
 
@@ -29,6 +30,9 @@ func main() {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]bool{"ok": true})
 	})
+
+	auth := handlers.NewAuthHandler(clientID)
+	r.Post("/api/auth/google", auth.GoogleSignIn)
 
 	handler := http.Handler(r)
 
