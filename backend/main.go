@@ -1,13 +1,14 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/rs/cors"
+	"kairos/backend/middleware"
 )
 
 func main() {
@@ -22,11 +23,12 @@ func main() {
 	}
 
 	r := chi.NewRouter()
-	r.Use(cors.New(cors.Options{
-		AllowedOrigins: []string{"http://localhost:5174"},
-		AllowedMethods: []string{"GET", "POST", "OPTIONS"},
-		AllowedHeaders: []string{"Content-Type"},
-	}).Handler)
+	r.Use(middleware.CORS())
+
+	r.Get("/health", func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]bool{"ok": true})
+	})
 
 	handler := http.Handler(r)
 
