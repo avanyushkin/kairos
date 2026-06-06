@@ -1,4 +1,4 @@
-const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID = '574464533205-j96ct2rhjsqkov2j721glf3rk653lupu.apps.googleusercontent.com';
 
 const BACKEND_URL = 'http://localhost:8080';
 
