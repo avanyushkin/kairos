@@ -116,7 +116,7 @@
               </div>
             </div>
             <div class="auth-card__body">
-              <div class="auth-card__form">
+              <div class="auth-card__form" id="auth-form">
                 <!-- Google OAuth2 sign-in -->
                 <button class="google-btn" id="google-sign-in-btn" type="button" aria-label="Continue with Google">
                   <span class="google-btn__icon" aria-hidden="true">
@@ -143,6 +143,13 @@
                 <button class="create-account-btn" id="create-account-btn" type="button">
                   Create account
                 </button>
+              </div>
+
+              <!-- Shown after successful Google sign-in -->
+              <div class="auth-card__user" id="auth-user" hidden>
+                <img class="auth-card__user-avatar" id="auth-user-avatar" src="" alt="User avatar" />
+                <p class="auth-card__user-name" id="auth-user-name"></p>
+                <p class="auth-card__user-email" id="auth-user-email"></p>
               </div>
             </div>
           </div>
