@@ -1,10 +1,15 @@
-export function initHeader(): void {
-  const header         = document.getElementById('header')!;
-  const sections       = document.querySelectorAll<HTMLElement>('section[id]');
-  const mobileNavItems = document.querySelectorAll<HTMLAnchorElement>('.nav-menu__item');
-  const desktopNavItems = document.querySelectorAll<HTMLAnchorElement>('.header__nav-item');
+export class Header {
+  private readonly element      = document.getElementById('header')!;
+  private readonly sections     = document.querySelectorAll<HTMLElement>('section[id]');
+  private readonly mobileItems  = document.querySelectorAll<HTMLAnchorElement>('.nav-menu__item');
+  private readonly desktopItems = document.querySelectorAll<HTMLAnchorElement>('.header__nav-item');
 
-  function getHeaderOffset(): number {
+  constructor() {
+    window.addEventListener('scroll', () => this.onScroll(), { passive: true });
+    this.onScroll();
+  }
+
+  private headerOffset(): number {
     return (
       parseInt(
         getComputedStyle(document.documentElement).getPropertyValue('--header-height') || '104',
@@ -13,30 +18,27 @@ export function initHeader(): void {
     );
   }
 
-  function updateActiveNav(): void {
-    const scrollY = window.scrollY + getHeaderOffset();
+  private updateActiveNav(): void {
+    const scrollY = window.scrollY + this.headerOffset();
     let currentId = '';
 
-    sections.forEach(section => {
+    this.sections.forEach(section => {
       if (section.offsetTop <= scrollY) currentId = section.id;
     });
 
-    mobileNavItems.forEach(item => {
+    this.mobileItems.forEach(item => {
       const href = (item.getAttribute('href') ?? '').replace('#', '');
       item.classList.toggle('nav-menu__item--active', href === currentId);
     });
 
-    desktopNavItems.forEach(item => {
+    this.desktopItems.forEach(item => {
       const href = (item.getAttribute('href') ?? '').replace('#', '');
       item.classList.toggle('header__nav-item--active', href === currentId);
     });
   }
 
-  function onScroll(): void {
-    header.classList.toggle('is-scrolled', window.scrollY > 10);
-    updateActiveNav();
+  private onScroll(): void {
+    this.element.classList.toggle('is-scrolled', window.scrollY > 10);
+    this.updateActiveNav();
   }
-
-  window.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
 }

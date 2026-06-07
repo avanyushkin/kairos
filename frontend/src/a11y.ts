@@ -7,16 +7,26 @@ const FOCUSABLE_SELECTOR = [
   '[tabindex]:not([tabindex="-1"])',
 ].join(',');
 
-function getFocusable(container: HTMLElement): HTMLElement[] {
-  return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
-}
+export class FocusTrap {
+  private readonly handler: (e: KeyboardEvent) => void;
 
-// Constrains Tab / Shift+Tab within container.
-// Returns a cleanup function — call it when the layer closes.
-export function trapFocus(container: HTMLElement): () => void {
-  function onKeyDown(e: KeyboardEvent): void {
+  constructor(private readonly container: HTMLElement) {
+    this.handler = this.onKeyDown.bind(this);
+  }
+
+  activate(): void {
+    this.container.addEventListener('keydown', this.handler);
+  }
+
+  release(): void {
+    this.container.removeEventListener('keydown', this.handler);
+  }
+
+  private onKeyDown(e: KeyboardEvent): void {
     if (e.key !== 'Tab') return;
-    const focusable = getFocusable(container);
+    const focusable = Array.from(
+      this.container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
+    );
     if (focusable.length === 0) return;
     const first = focusable[0];
     const last  = focusable[focusable.length - 1];
@@ -26,7 +36,4 @@ export function trapFocus(container: HTMLElement): () => void {
       if (document.activeElement === last)  { e.preventDefault(); first.focus(); }
     }
   }
-
-  container.addEventListener('keydown', onKeyDown);
-  return () => container.removeEventListener('keydown', onKeyDown);
 }
