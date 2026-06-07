@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
+    <!-- Skip link: visible on focus for keyboard users -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
 
     <!-- ===================== HEADER ===================== -->
     <header class="header" id="header">
@@ -54,8 +56,8 @@
     </nav>
 
     <!-- ===================== HERO ===================== -->
-    <main>
-      <section class="hero" id="home">
+    <main id="main-content">
+      <section class="hero" id="home" aria-labelledby="hero-heading">
         <!-- Background video (autoplay, muted — required by browsers) -->
         <!-- Replace src with your actual video file to enable video background -->
         <video
@@ -66,6 +68,8 @@
           loop
           playsinline
           poster="/assets/images/hero-bg.png"
+          aria-hidden="true"
+          tabindex="-1"
         >
           <source src="/assets/videos/hero.mp4" type="video/mp4" />
           <source src="/assets/videos/hero.webm" type="video/webm" />
@@ -77,7 +81,7 @@
           <div class="hero__left">
             <!-- Hero text -->
             <div class="hero__text-block">
-              <h1 class="hero__title">From the Field of All Possibility</h1>
+              <h1 class="hero__title" id="hero-heading">From the Field of All Possibility</h1>
               <p class="hero__desc">
                 This is an emergent space where ideas are not created, but carefully discovered.
                 We navigate the vast potential to bring forth only the most resonant patterns and
@@ -111,12 +115,12 @@
             <div class="auth-card__header">
               <h2 class="auth-card__title">Online Banking</h2>
               <div class="auth-card__tabs" role="tablist">
-                <button class="auth-card__tab auth-card__tab--active" role="tab" aria-selected="true" data-tab="personal">Personal</button>
-                <button class="auth-card__tab" role="tab" aria-selected="false" data-tab="business">Business</button>
+                <button class="auth-card__tab auth-card__tab--active" role="tab" aria-selected="true" aria-controls="auth-panel" id="tab-signin" data-tab="signin" tabindex="0">Sign In</button>
+                <button class="auth-card__tab" role="tab" aria-selected="false" aria-controls="auth-panel" id="tab-email" data-tab="email" tabindex="-1">Enter Email</button>
               </div>
             </div>
             <div class="auth-card__body">
-              <div class="auth-card__form" id="auth-form">
+              <div class="auth-card__form" id="auth-panel" role="tabpanel" aria-labelledby="tab-signin">
                 <!-- Google OAuth2 sign-in -->
                 <button class="google-btn" id="google-sign-in-btn" type="button" aria-label="Continue with Google">
                   <span class="google-btn__icon" aria-hidden="true">
@@ -157,7 +161,7 @@
       </section>
 
       <!-- ===================== CRYPTO SECTION ===================== -->
-      <section class="crypto-section" id="about">
+      <section class="crypto-section" id="about" aria-label="Cryptocurrency live prices">
         <div class="crypto-section__inner">
           <!-- Globe with concentric ellipses -->
           <div class="crypto-globe">
@@ -182,69 +186,70 @@
 
           <!-- Crypto price list -->
           <div class="crypto-list" id="projects">
-            <div class="crypto-col">
-              <div class="crypto-item" data-symbol="btcusdt">
+            <ul class="crypto-col" role="list">
+              <li class="crypto-item" role="listitem" data-symbol="btcusdt" aria-label="Bitcoin: $87,965.62">
                 <img src="/assets/icons/coin-btc.svg" alt="" class="crypto-item__icon" aria-hidden="true" />
                 <span class="crypto-item__name">Bitcoin</span>
-                <span class="crypto-item__price">$87,965.62</span>
-              </div>
-              <div class="crypto-item" data-symbol="ethusdt">
+                <span class="crypto-item__price" aria-hidden="true">$87,965.62</span>
+              </li>
+              <li class="crypto-item" role="listitem" data-symbol="ethusdt" aria-label="Ethereum: $2,950.04">
                 <img src="/assets/icons/coin-eth.svg" alt="" class="crypto-item__icon" aria-hidden="true" />
                 <span class="crypto-item__name">Ethereum</span>
-                <span class="crypto-item__price">$2,950.04</span>
-              </div>
-              <div class="crypto-item" data-symbol="solusdt">
+                <span class="crypto-item__price" aria-hidden="true">$2,950.04</span>
+              </li>
+              <li class="crypto-item" role="listitem" data-symbol="solusdt" aria-label="Solana: $124.53">
                 <img src="/assets/icons/coin-sol.svg" alt="" class="crypto-item__icon" aria-hidden="true" />
                 <span class="crypto-item__name">Solana</span>
-                <span class="crypto-item__price">$124.53</span>
-              </div>
-              <div class="crypto-item" data-symbol="xrpusdt">
+                <span class="crypto-item__price" aria-hidden="true">$124.53</span>
+              </li>
+              <li class="crypto-item" role="listitem" data-symbol="xrpusdt" aria-label="XRP: $1.862">
                 <img src="/assets/icons/coin-xrp.svg" alt="" class="crypto-item__icon" aria-hidden="true" />
                 <span class="crypto-item__name">XRP</span>
-                <span class="crypto-item__price">$1.862</span>
-              </div>
-              <div class="crypto-item" data-symbol="usdcusdt">
+                <span class="crypto-item__price" aria-hidden="true">$1.862</span>
+              </li>
+              <li class="crypto-item" role="listitem" data-symbol="usdcusdt" aria-label="USD Coin: $0.9997">
                 <img src="/assets/icons/coin-usdc.svg" alt="" class="crypto-item__icon" aria-hidden="true" />
                 <span class="crypto-item__name">USD Coin</span>
-                <span class="crypto-item__price">$0.9997</span>
-              </div>
-            </div>
-            <div class="crypto-col">
-              <div class="crypto-item" data-symbol="bnbusdt">
+                <span class="crypto-item__price" aria-hidden="true">$0.9997</span>
+              </li>
+            </ul>
+            <ul class="crypto-col" role="list">
+              <li class="crypto-item" role="listitem" data-symbol="bnbusdt" aria-label="Binance Coin: $844.91">
                 <img src="/assets/icons/coin-bnb.svg" alt="" class="crypto-item__icon" aria-hidden="true" />
                 <span class="crypto-item__name">Binance Coin</span>
-                <span class="crypto-item__price">$844.91</span>
-              </div>
-              <div class="crypto-item">
+                <span class="crypto-item__price" aria-hidden="true">$844.91</span>
+              </li>
+              <li class="crypto-item" role="listitem" aria-label="Midnight: $0.06398">
                 <img src="/assets/icons/coin-night.svg" alt="" class="crypto-item__icon" aria-hidden="true" />
                 <span class="crypto-item__name">Midnight</span>
-                <span class="crypto-item__price">$0.06398</span>
-              </div>
-              <div class="crypto-item" data-symbol="dogeusdt">
+                <span class="crypto-item__price" aria-hidden="true">$0.06398</span>
+              </li>
+              <li class="crypto-item" role="listitem" data-symbol="dogeusdt" aria-label="Dogecoin: $0.1278">
                 <img src="/assets/icons/coin-doge.svg" alt="" class="crypto-item__icon" aria-hidden="true" />
                 <span class="crypto-item__name">Dogecoin</span>
-                <span class="crypto-item__price">$0.1278</span>
-              </div>
-              <div class="crypto-item" data-symbol="suiusdt">
+                <span class="crypto-item__price" aria-hidden="true">$0.1278</span>
+              </li>
+              <li class="crypto-item" role="listitem" data-symbol="suiusdt" aria-label="Sui: $1.427">
                 <img src="/assets/icons/coin-sui.svg" alt="" class="crypto-item__icon" aria-hidden="true" />
                 <span class="crypto-item__name">Sui</span>
-                <span class="crypto-item__price">$1.427</span>
-              </div>
-              <div class="crypto-item">
+                <span class="crypto-item__price" aria-hidden="true">$1.427</span>
+              </li>
+              <li class="crypto-item" role="listitem" aria-label="Tether: $1.000">
                 <img src="/assets/icons/coin-usdt.svg" alt="" class="crypto-item__icon" aria-hidden="true" />
                 <span class="crypto-item__name">Tether</span>
-                <span class="crypto-item__price">$1.000</span>
-              </div>
-            </div>
+                <span class="crypto-item__price" aria-hidden="true">$1.000</span>
+              </li>
+            </ul>
           </div>
         </div>
       </section>
     </main>
 
     <!-- ===================== VIDEO POPUP ===================== -->
-    <div class="popup" id="video-popup" role="dialog" aria-modal="true" aria-label="Video" aria-hidden="true">
+    <div class="popup" id="video-popup" role="dialog" aria-modal="true" aria-labelledby="video-popup-title" aria-hidden="true">
       <div class="popup__backdrop" id="video-popup-backdrop"></div>
       <div class="popup__box">
+        <h2 class="sr-only" id="video-popup-title">Kairos video</h2>
         <button class="popup__close" id="video-popup-close" aria-label="Close video">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <path d="M1 1L13 13M13 1L1 13" stroke="white" stroke-width="2" stroke-linecap="round"/>
@@ -265,7 +270,7 @@
     </div>
 
     <!-- ===================== LEARN MORE POPUP ===================== -->
-    <div class="popup popup--learn" id="learn-popup" role="dialog" aria-modal="true" aria-label="Learn more" aria-hidden="true">
+    <div class="popup popup--learn" id="learn-popup" role="dialog" aria-modal="true" aria-labelledby="learn-popup-title" aria-hidden="true">
       <div class="popup__backdrop" id="learn-popup-backdrop"></div>
       <div class="popup__box popup__box--learn">
         <button class="popup__close" id="learn-popup-close" aria-label="Close">
@@ -274,7 +279,7 @@
           </svg>
         </button>
         <div class="popup__learn-content">
-          <h2 class="popup__learn-title">From the Field of All Possibility</h2>
+          <h2 class="popup__learn-title" id="learn-popup-title">From the Field of All Possibility</h2>
           <p class="popup__learn-text">
             This is an emergent space where ideas are not created, but carefully discovered.
             We navigate the vast potential to bring forth only the most resonant patterns and

@@ -1,3 +1,5 @@
+import { trapFocus } from './a11y';
+
 const playVideoBtn  = document.getElementById('play-video-btn')!;
 const learnMoreBtn  = document.getElementById('learn-more-btn')!;
 
@@ -12,11 +14,14 @@ const learnPopupBackdrop = document.getElementById('learn-popup-backdrop')!;
 
 // ── Video popup ───────────────────────────────────────────────
 
+let releaseVideoTrap: (() => void) | null = null;
+
 function openVideoPopup(): void {
   videoPopup.classList.add('is-open');
   videoPopup.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
   popupVideo.play().catch(() => { /* user can play via controls */ });
+  releaseVideoTrap = trapFocus(videoPopup);
   videoPopupClose.focus();
 }
 
@@ -26,15 +31,20 @@ export function closeVideoPopup(): void {
   videoPopup.setAttribute('aria-hidden', 'true');
   document.body.style.overflow = '';
   popupVideo.pause();
+  releaseVideoTrap?.();
+  releaseVideoTrap = null;
   playVideoBtn.focus();
 }
 
 // ── Learn More popup ──────────────────────────────────────────
 
+let releaseLearnTrap: (() => void) | null = null;
+
 function openLearnPopup(): void {
   learnPopup.classList.add('is-open');
   learnPopup.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
+  releaseLearnTrap = trapFocus(learnPopup);
   learnPopupClose.focus();
 }
 
@@ -43,6 +53,8 @@ export function closeLearnPopup(): void {
   learnPopup.classList.remove('is-open');
   learnPopup.setAttribute('aria-hidden', 'true');
   document.body.style.overflow = '';
+  releaseLearnTrap?.();
+  releaseLearnTrap = null;
   learnMoreBtn.focus();
 }
 

@@ -19,6 +19,12 @@ interface PriceUpdate {
   price: number;
 }
 
+interface CryptoEntry {
+  priceEl: HTMLElement;
+  itemEl: HTMLElement;
+  name: string;
+}
+
 interface CryptoState {
   prices: ReadonlyMap<string, number>;
 }
@@ -180,12 +186,15 @@ function formatPrice(price: number): string {
   return '$' + price.toFixed(5);
 }
 
-function buildPriceMap(): Map<string, HTMLElement> {
-  const map = new Map<string, HTMLElement>();
+function buildPriceMap(): Map<string, CryptoEntry> {
+  const map = new Map<string, CryptoEntry>();
   document.querySelectorAll<HTMLElement>('.crypto-item[data-symbol]').forEach(item => {
-    const symbol = item.dataset.symbol!;
-    const el = item.querySelector<HTMLElement>('.crypto-item__price');
-    if (el) map.set(symbol, el);
+    const symbol  = item.dataset.symbol!;
+    const priceEl = item.querySelector<HTMLElement>('.crypto-item__price');
+    const nameEl  = item.querySelector<HTMLElement>('.crypto-item__name');
+    if (priceEl && nameEl) {
+      map.set(symbol, { priceEl, itemEl: item, name: nameEl.textContent ?? symbol });
+    }
   });
   return map;
 }
@@ -201,8 +210,11 @@ export function initCryptoPrices(): () => void {
 
   const unsubscribe = model.subscribe(({ prices }) => {
     prices.forEach((price, symbol) => {
-      const el = domMap.get(symbol);
-      if (el) el.textContent = formatPrice(price);
+      const entry = domMap.get(symbol);
+      if (!entry) return;
+      const formatted = formatPrice(price);
+      entry.priceEl.textContent = formatted;
+      entry.itemEl.setAttribute('aria-label', `${entry.name}: ${formatted}`);
     });
   });
 

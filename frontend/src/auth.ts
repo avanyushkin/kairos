@@ -28,7 +28,7 @@ async function verifyWithBackend(token: string): Promise<UserInfo> {
 // ── UI state ──────────────────────────────────────────────────
 
 function showUser(user: UserInfo): void {
-  const form   = document.getElementById('auth-form')!;
+  const form   = document.getElementById('auth-panel')!;
   const panel  = document.getElementById('auth-user')!;
   const avatar = document.getElementById('auth-user-avatar') as HTMLImageElement;
   const name   = document.getElementById('auth-user-name')!;
@@ -73,14 +73,20 @@ export function initAuth(): void {
   const createAccountBtn = document.getElementById('create-account-btn')!;
   const tabButtons       = document.querySelectorAll<HTMLButtonElement>('.auth-card__tab');
 
+  const authPanel = document.getElementById('auth-panel') as HTMLElement | null;
+
   tabButtons.forEach(tab => {
     tab.addEventListener('click', () => {
       tabButtons.forEach(t => {
         t.classList.remove('auth-card__tab--active');
         t.setAttribute('aria-selected', 'false');
+        t.setAttribute('tabindex', '-1');
       });
       tab.classList.add('auth-card__tab--active');
       tab.setAttribute('aria-selected', 'true');
+      tab.setAttribute('tabindex', '0');
+      // Update tabpanel label to reflect active tab
+      if (authPanel && tab.id) authPanel.setAttribute('aria-labelledby', tab.id);
     });
   });
 
