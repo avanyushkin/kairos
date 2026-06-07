@@ -6,8 +6,11 @@ const WS_URL =
   'wss://stream.binance.com:9443/stream?streams=' +
   SYMBOLS.map(s => `${s}@miniTicker`).join('/');
 
-const BATCH_INTERVAL_MS = 50;
-const RECONNECT_DELAY_MS = 5000;
+const BATCH_INTERVAL_MS   = 50;
+const RECONNECT_DELAY_MS  = 5000;
+// If no message arrives within this window, the connection is considered hung.
+// Binance miniTicker streams fire every ~1s, so 15s is a generous threshold.
+const WATCHDOG_TIMEOUT_MS = 15_000;
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -125,13 +128,39 @@ async function* wsReconnect(
 }
 
 // ── WebSocket consumer ────────────────────────────────────────
+//
+// Watchdog: started on 'open', reset on every message.
+// If WATCHDOG_TIMEOUT_MS passes without any message (TCP hang),
+// ws.close() is called — the generator loop catches the close
+// event and reconnects after RECONNECT_DELAY_MS.
 
 async function runWebSocket(
   onMessage: (update: PriceUpdate) => void,
   signal: AbortSignal,
 ): Promise<void> {
   for await (const ws of wsReconnect(WS_URL, signal)) {
+    let watchdog: ReturnType<typeof setTimeout> | null = null;
+
+    const resetWatchdog = (): void => {
+      if (watchdog !== null) clearTimeout(watchdog);
+      watchdog = setTimeout(() => ws.close(), WATCHDOG_TIMEOUT_MS);
+    };
+
+    const clearWatchdog = (): void => {
+      if (watchdog !== null) { clearTimeout(watchdog); watchdog = null; }
+    };
+
+    // Start watchdog only after the connection is established
+    ws.addEventListener('open',  resetWatchdog, { once: true });
+    ws.addEventListener('close', clearWatchdog, { once: true });
+
     ws.addEventListener('message', (event: MessageEvent<string>) => {
+      resetWatchdog();
+
+      // Binance may send a text-level "ping" in addition to protocol frames.
+      // Browsers handle protocol-level pings automatically, but not text ones.
+      if (event.data === 'ping') { ws.send('pong'); return; }
+
       const msg = JSON.parse(event.data) as BinanceMessage;
       const symbol = msg.stream.replace('@miniTicker', '');
       const price = parseFloat(msg.data.c);
