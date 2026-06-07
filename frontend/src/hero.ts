@@ -1,20 +1,27 @@
-export function initHeroVideo(): void {
-  const heroVideo = document.getElementById('hero-video') as HTMLVideoElement | null;
-  if (!heroVideo) return;
+export class HeroVideo {
+  private readonly video: HTMLVideoElement | null;
 
-  heroVideo.muted      = true;
-  heroVideo.autoplay   = true;
-  heroVideo.loop       = true;
-  heroVideo.playsInline = true;
+  constructor() {
+    this.video = document.getElementById('hero-video') as HTMLVideoElement | null;
+    if (!this.video) return;
+    this.init();
+  }
 
-  const tryPlay = (): void => {
-    if (!heroVideo.paused) return;
-    heroVideo.play().catch(() => { /* poster shown as fallback */ });
-  };
+  private init(): void {
+    const video = this.video!;
+    video.muted      = true;
+    video.autoplay   = true;
+    video.loop       = true;
+    video.playsInline = true;
 
-  heroVideo.addEventListener('canplay',    tryPlay, { once: true });
-  heroVideo.addEventListener('loadeddata', tryPlay, { once: true });
-  // iOS Safari requires a user gesture — attach to first touchstart
-  document.addEventListener('touchstart',  tryPlay, { once: true, passive: true });
-  tryPlay();
+    const tryPlay = (): void => {
+      if (!video.paused) return;
+      video.play().catch(() => {});
+    };
+
+    video.addEventListener('canplay',    tryPlay, { once: true });
+    video.addEventListener('loadeddata', tryPlay, { once: true });
+    document.addEventListener('touchstart', tryPlay, { once: true, passive: true });
+    tryPlay();
+  }
 }
