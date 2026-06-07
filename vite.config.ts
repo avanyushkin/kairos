@@ -14,8 +14,8 @@ const SECURITY_HEADERS: Record<string, string> = {
 const PROD_CSP = [
   "default-src 'self'",
   "script-src 'self' https://accounts.google.com",
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "font-src 'self' https://fonts.gstatic.com",
+  "style-src 'self' 'unsafe-inline'",
+  "font-src 'self'",
   "img-src 'self' data: https://*.googleusercontent.com",
   "connect-src 'self' https://oauth2.googleapis.com wss://stream.binance.com:9443 https://accounts.google.com",
   "frame-src https://accounts.google.com",
@@ -26,8 +26,8 @@ const PROD_CSP = [
 const DEV_CSP = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-eval' https://accounts.google.com",
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "font-src 'self' https://fonts.gstatic.com",
+  "style-src 'self' 'unsafe-inline'",
+  "font-src 'self'",
   "img-src 'self' data: https://*.googleusercontent.com",
   "connect-src 'self' ws://localhost:* wss://localhost:* https://oauth2.googleapis.com wss://stream.binance.com:9443 https://accounts.google.com",
   "frame-src https://accounts.google.com",

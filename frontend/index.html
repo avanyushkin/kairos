@@ -8,9 +8,10 @@
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Kairos — Online Banking & Crypto in Real Time" />
     <meta property="og:description" content="Modern online banking with live crypto prices and Google authentication." />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Bruno+Ace&display=swap" rel="stylesheet" />
+    <!-- Font is self-hosted: no external request, no render-blocking, no CLS -->
+    <link rel="preload" href="/fonts/BrunoAce-Regular.woff2" as="font" type="font/woff2" crossorigin />
+    <!-- Preload LCP poster image with high priority -->
+    <link rel="preload" href="/assets/images/hero-bg.webp" as="image" fetchpriority="high" />
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
@@ -70,7 +71,7 @@
           muted
           loop
           playsinline
-          poster="/assets/images/hero-bg.png"
+          poster="/assets/images/hero-bg.webp"
           aria-hidden="true"
           tabindex="-1"
         >
@@ -263,7 +264,7 @@
             class="popup__video"
             id="popup-video"
             controls
-            poster="/assets/images/hero-bg.png"
+            poster="/assets/images/hero-bg.webp"
           >
             <source src="/assets/videos/hero.mp4" type="video/mp4" />
             <source src="/assets/videos/hero.webm" type="video/webm" />

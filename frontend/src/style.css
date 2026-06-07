@@ -1,3 +1,12 @@
+/* Self-hosted to eliminate render-blocking Google Fonts request and font-swap CLS */
+@font-face {
+  font-family: 'Bruno Ace';
+  font-style: normal;
+  font-weight: 400;
+  font-display: optional;
+  src: url('/fonts/BrunoAce-Regular.woff2') format('woff2');
+}
+
 /* ============================================================
    RESET & BASE
    ============================================================ */
@@ -260,7 +269,7 @@ img { display: block; max-width: 100%; }
   overflow: hidden;
   background-color: var(--color-bg);
   /* Fallback background (shown when video has no source) */
-  background-image: url('/assets/images/hero-bg.png');
+  background-image: url('/assets/images/hero-bg.webp');
   background-size: cover;
   background-position: center center;
 }
