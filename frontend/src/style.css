@@ -1,0 +1,1181 @@
+/* Self-hosted to eliminate render-blocking Google Fonts request and font-swap CLS */
+@font-face {
+  font-family: 'Bruno Ace';
+  font-style: normal;
+  font-weight: 400;
+  font-display: optional;
+  src: url('/fonts/BrunoAce-Regular.woff2') format('woff2');
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Bruno Ace', sans-serif;
+  background-color: #031c39;
+  color: #ffffff;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================================
+   ACCESSIBILITY UTILITIES
+   ============================================================ */
+
+/* Visually hidden — readable by screen readers, invisible on screen */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Skip navigation link — appears on focus for keyboard users */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 16px;
+  z-index: 9999;
+  padding: 10px 20px;
+  background: var(--color-gold);
+  color: var(--color-purple);
+  font-family: 'Bruno Ace', sans-serif;
+  font-size: 14px;
+  text-decoration: none;
+  border-radius: 0 0 6px 6px;
+  transition: top 0.15s ease;
+}
+.skip-link:focus {
+  top: 0;
+  outline: 3px solid var(--color-purple);
+  outline-offset: 2px;
+}
+
+/* Global focus-visible: high-contrast ring for keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+/* Remove default outline for mouse users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Reset list styles for crypto-col (changed from div to ul) */
+ul.crypto-col {
+  list-style: none;
+}
+
+ul { list-style: none; }
+a { text-decoration: none; color: inherit; }
+button { border: none; background: none; cursor: pointer; font-family: inherit; }
+img { display: block; max-width: 100%; }
+
+/* ============================================================
+   CSS CUSTOM PROPERTIES
+   ============================================================ */
+:root {
+  --color-bg: #031c39;
+  --color-purple: #27005b;
+  --color-gold: #bdaa6d;
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-stroke: #315588;
+
+  --page-width: 768px;
+  --container-pad: 60px;
+  --container-width: 648px; /* 768 - 60*2 */
+
+  --header-height: 104px;
+}
+
+/* ============================================================
+   LAYOUT CONTAINER
+   ============================================================ */
+.page-container {
+  max-width: var(--page-width);
+  margin: 0 auto;
+  padding-left: var(--container-pad);
+  padding-right: var(--container-pad);
+}
+
+/* ============================================================
+   HEADER  (h=104px, fixed at top)
+   ============================================================ */
+.header {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: var(--page-width);
+  height: var(--header-height);
+  z-index: 200;
+  /* Transparent over hero, becomes opaque on scroll via JS class */
+  background-color: transparent;
+  transition: background-color 0.3s ease;
+}
+
+.header.is-scrolled {
+  background-color: rgba(3, 28, 57, 0.95);
+  backdrop-filter: blur(8px);
+}
+
+.header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  padding: 0 var(--container-pad);
+}
+
+.header__logo {
+  display: flex;
+  align-items: center;
+  /* Logo: 173×34px, positioned at y≈35 (vertically centered in 104px header) */
+  padding-top: 1px;
+}
+
+.header__logo img {
+  width: 173px;
+  height: 34px;
+}
+
+.header__burger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background-color: var(--color-purple);
+  flex-shrink: 0;
+  transition: opacity 0.2s ease;
+}
+
+.header__burger:hover { opacity: 0.85; }
+.header__burger:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 3px; }
+
+/* ============================================================
+   MOBILE NAV MENU
+   (slides in from right — matches "T. HP Menu" state in Figma)
+   ============================================================ */
+.nav-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0);
+  z-index: 250;
+  pointer-events: none;
+  transition: background 0.35s ease;
+}
+
+.nav-overlay.is-visible {
+  background: rgba(0, 0, 0, 0.45);
+  pointer-events: auto;
+}
+
+.nav-menu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 283px; /* 768 - 485 ≈ right panel from Figma "T. HP Menu" */
+  height: 100%;
+  background-color: var(--color-bg);
+  z-index: 300;
+  padding: 104px 0 0 60px;
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: -4px 0 32px rgba(0, 0, 0, 0.4);
+}
+
+.nav-menu.is-open {
+  transform: translateX(0);
+}
+
+.nav-menu__close {
+  position: absolute;
+  top: 29px;
+  right: 29px;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background-color: var(--color-purple);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s;
+}
+
+.nav-menu__close:hover { opacity: 0.85; }
+.nav-menu__close:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 3px; }
+
+.nav-menu__list {
+  display: flex;
+  flex-direction: column;
+  gap: 54px; /* spacing between nav items from Figma: 338-284=54, 392-338=54, 446-392=54 */
+}
+
+.nav-menu__item {
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--color-white);
+  line-height: 1.2;
+  position: relative;
+  display: inline-block;
+  transition: color 0.2s ease;
+}
+
+.nav-menu__item::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--color-gold);
+  transition: width 0.2s ease;
+}
+
+.nav-menu__item--active::after,
+.nav-menu__item:hover::after {
+  width: 100%;
+}
+
+.nav-menu__item--active { color: var(--color-white); }
+
+/* ============================================================
+   HERO SECTION  (h=1281px at 768px viewport)
+   ============================================================ */
+.hero {
+  position: relative;
+  width: 100%;
+  min-height: 1281px;
+  overflow: hidden;
+  background-color: var(--color-bg);
+  /* Fallback background (shown when video has no source) */
+  background-image: url('/assets/images/hero-bg.webp');
+  background-size: cover;
+  background-position: center center;
+}
+
+/* Background video */
+.hero__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Gradient overlay matching Figma fills */
+.hero__overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(3, 28, 57, 0.05) 0%,
+      rgba(3, 28, 57, 0.20) 30%,
+      rgba(3, 28, 57, 0.65) 55%,
+      rgba(3, 28, 57, 0.88) 72%,
+      #031c39 88%
+    );
+  pointer-events: none;
+}
+
+/* Hero content container */
+.hero__content {
+  position: relative;
+  z-index: 1;
+  max-width: var(--page-width);
+  margin: 0 auto;
+  padding: 201px var(--container-pad) 0;
+}
+
+/* ---- Hero text block ---- */
+.hero__text-block {
+  display: flex;
+  flex-direction: column;
+  gap: 41px; /* y(desc)=472 - y(title)=201 - h(title)=231 = 40px ≈ 41px */
+}
+
+.hero__title {
+  font-size: 64px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--color-white);
+  max-width: var(--container-width);
+  text-transform: uppercase;
+}
+
+.hero__desc {
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.53;
+  color: var(--color-white);
+  max-width: var(--container-width);
+}
+
+/* ---- Action buttons ---- */
+.hero__actions {
+  display: flex;
+  gap: 40px; /* x(play)=4688 - x(learn_end)=4441+207=4648 = 40px */
+  margin-top: 37px; /* y(buttons)=619 - y(desc)=472 - h(desc)=110 = 37px */
+}
+
+/* Base button */
+.btn {
+  display: flex;
+  align-items: stretch;
+  height: 55px;
+  width: 207px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.btn__label {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 400;
+  padding: 0 20px;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.btn__arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 71px;
+  flex-shrink: 0;
+}
+
+/* "Learn More" button — white bg, purple text */
+.btn--learn {
+  background-color: var(--color-white);
+}
+
+.btn--learn .btn__label {
+  color: var(--color-purple);
+}
+
+.btn--learn .btn__arrow--dark {
+  background-color: var(--color-purple);
+}
+
+/* "Play Video" button — transparent bg, white text */
+.btn--play {
+  background-color: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn--play .btn__label {
+  color: var(--color-white);
+}
+
+.btn--play .btn__arrow--light {
+  background-color: var(--color-white);
+}
+
+.btn:hover { opacity: 0.88; }
+.btn:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 2px; }
+
+/* ============================================================
+   AUTH / ONLINE BANKING CARD
+   (y=734 from page top, 648×455px, white background)
+   ============================================================ */
+.auth-card {
+  margin-top: 60px; /* gap between buttons and card: 734-619-55=60px */
+  width: var(--container-width);
+  background-color: var(--color-white);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Dark purple header area (Rectangle 4: 125px, tabs extend to 146px) */
+.auth-card__header {
+  background-color: var(--color-purple);
+  padding: 30px var(--container-pad) 0;
+}
+
+.auth-card__title {
+  font-size: 24px;
+  font-weight: 400;
+  color: var(--color-white);
+  margin-bottom: 30px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: center;
+}
+
+/* Tab buttons (Personal | Business) */
+.auth-card__tabs {
+  display: flex;
+  margin: 0 calc(-1 * var(--container-pad)); /* extend tabs to card edges */
+}
+
+.auth-card__tab {
+  flex: 1;
+  height: 47px;
+  font-family: 'Bruno Ace', sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.auth-card__tab--active {
+  background-color: var(--color-white);
+  color: var(--color-purple);
+}
+
+.auth-card__tab:not(.auth-card__tab--active) {
+  background-color: var(--color-purple);
+  color: var(--color-white);
+}
+
+.auth-card__tab:hover:not(.auth-card__tab--active) {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Card body */
+.auth-card__body {
+  padding: 50px 0 40px; /* top: 930-734-146=50px, sides via form centering */
+}
+
+/* Form is centered: 112px from each side within 648px card */
+.auth-card__form {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 20px;
+  width: 424px;
+  margin: 0 auto;
+}
+
+/* ---- Google OAuth button ---- */
+.google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  width: 100%;
+  height: 48px;
+  background-color: var(--color-gold);
+  font-family: 'Bruno Ace', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--color-white);
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.1s ease;
+}
+
+.google-btn:hover { opacity: 0.9; }
+.google-btn:active { transform: scale(0.99); }
+.google-btn:focus-visible { outline: 2px solid var(--color-purple); outline-offset: 2px; }
+
+.google-btn__icon {
+  display: flex;
+  align-items: center;
+  width: 24px;
+  height: 24px;
+  background-color: var(--color-white);
+  border-radius: 2px;
+  padding: 2px;
+  flex-shrink: 0;
+}
+
+.google-btn__icon svg { width: 100%; height: 100%; }
+
+.google-btn__text {
+  font-size: 16px;
+  color: var(--color-white);
+}
+
+/* ---- CTA link ---- */
+.auth-card__link-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.auth-card__link {
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--color-black);
+  position: relative;
+  display: inline-block;
+}
+
+.auth-card__link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--color-black);
+}
+
+/* ---- Divider "or" ---- */
+.auth-card__divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: rgba(0, 0, 0, 0.4);
+  font-size: 16px;
+}
+
+.auth-card__divider-line {
+  flex: 1;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.auth-card__divider-or {
+  white-space: nowrap;
+}
+
+/* ---- Create account button ---- */
+.create-account-btn {
+  width: 100%;
+  height: 48px;
+  background-color: var(--color-white);
+  border: 1px solid rgba(189, 170, 109, 0.4);
+  font-family: 'Bruno Ace', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--color-gold);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.create-account-btn:hover { background-color: rgba(189, 170, 109, 0.05); }
+.create-account-btn:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 2px; }
+
+/* Auth — logged-in state */
+.auth-card__user {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 0;
+  text-align: center;
+}
+.auth-card__user-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--color-gold);
+}
+.auth-card__user-name {
+  font-family: 'Bruno Ace', sans-serif;
+  font-size: 18px;
+  color: var(--color-white);
+  margin: 0;
+}
+.auth-card__user-email {
+  font-size: 14px;
+  color: rgba(255,255,255,0.6);
+  margin: 0;
+}
+
+/* ============================================================
+   CRYPTO SECTION  (dark navy, h≈1174px at 768px)
+   ============================================================ */
+.crypto-section {
+  background-color: var(--color-bg);
+  padding-bottom: 80px;
+}
+
+.crypto-section__inner {
+  max-width: var(--page-width);
+  margin: 0 auto;
+  padding: 16px var(--container-pad) 0;
+  /* Globe + crypto list layout */
+}
+
+/* ---- Crypto Globe ---- */
+.crypto-globe {
+  position: relative;
+  width: 648px;
+  height: 648px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.crypto-globe__rings {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Three concentric dashed ellipses from Figma */
+/* Ellipse 8: 556×556, Ellipse 7: 489×489, Ellipse 4: 432×432 */
+.crypto-globe__ring {
+  position: absolute;
+  border-radius: 50%;
+  border-style: dashed;
+  border-color: var(--color-stroke);
+}
+
+.crypto-globe__ring--outer {
+  width: 556px;
+  height: 556px;
+  border-width: 1px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(3, 28, 57, 0.20) 0%,
+    rgba(4, 38, 79, 0.20) 78%,
+    rgba(4, 38, 79, 0.30) 100%
+  );
+}
+
+.crypto-globe__ring--mid {
+  width: 489px;
+  height: 489px;
+  border-width: 1px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(3, 28, 57, 0.50) 0%,
+    rgba(4, 38, 79, 0.50) 78%,
+    rgba(4, 38, 79, 0.65) 100%
+  );
+}
+
+.crypto-globe__ring--inner {
+  width: 432px;
+  height: 432px;
+  border-width: 1px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(3, 28, 57, 0.80) 0%,
+    rgba(4, 38, 79, 0.80) 78%,
+    rgba(4, 38, 79, 0.90) 100%
+  );
+}
+
+/* Mini banking card inside globe */
+.crypto-globe__card {
+  position: relative;
+  z-index: 2;
+  background-color: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 18px; /* Frame 49: h=107, label h=29, btn h=48 → gap≈30 */
+}
+
+.crypto-globe__card-label {
+  font-size: 24px;
+  font-weight: 400;
+  color: var(--color-white);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.crypto-globe__card-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 346px;
+  height: 48px;
+  background-color: var(--color-white);
+  padding: 0 16px;
+  font-family: 'Bruno Ace', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--color-purple);
+  transition: opacity 0.2s;
+}
+
+.crypto-globe__card-btn:hover { opacity: 0.9; }
+.crypto-globe__card-btn:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 2px; }
+
+.crypto-globe__card-btn-arrow {
+  display: flex;
+  align-items: center;
+}
+
+/* ---- Crypto Price List ---- */
+.crypto-list {
+  display: flex;
+  gap: 20px;
+  margin-top: 0;
+  padding-bottom: 40px;
+}
+
+.crypto-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* y spacing: 2016-1955=61px − item height 41px = 20px gap */
+}
+
+.crypto-item {
+  display: flex;
+  align-items: center;
+  gap: 20px; /* x(name)=4502 - x(icon)=4441 - icon_width=41 = 20px */
+}
+
+.crypto-item__icon {
+  width: 41px;
+  height: 41px;
+  border-radius: 50%;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.crypto-item__name {
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--color-white);
+  flex: 1;
+}
+
+.crypto-item__price {
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--color-white);
+  white-space: nowrap;
+}
+
+/* ============================================================
+   POPUP / MODAL
+   ============================================================ */
+.popup {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.popup.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.popup__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.70);
+  cursor: pointer;
+}
+
+.popup__box {
+  position: relative;
+  z-index: 1;
+  background-color: var(--color-bg);
+  max-width: var(--page-width);
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.popup__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background-color: var(--color-purple);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  transition: opacity 0.2s;
+}
+
+.popup__close:hover { opacity: 0.85; }
+.popup__close:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 3px; }
+
+/* Video popup */
+.popup__video-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: #000;
+}
+
+.popup__video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Learn More popup */
+.popup__box--learn {
+  padding: 80px var(--container-pad) 60px;
+}
+
+.popup__learn-title {
+  font-size: 40px;
+  font-weight: 400;
+  color: var(--color-white);
+  margin-bottom: 32px;
+  line-height: 1.2;
+}
+
+.popup__learn-text {
+  font-size: 18px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+/* ============================================================
+   FOCUS VISIBLE UTILITY
+   ============================================================ */
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+}
+
+/* ============================================================
+   HEADER DESKTOP NAV (hidden on mobile/tablet by default)
+   ============================================================ */
+.header__nav {
+  display: none;
+}
+
+.header__nav-list {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  list-style: none;
+}
+
+.header__nav-item {
+  font-family: 'Bruno Ace', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--color-white);
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.header__nav-item::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--color-gold);
+  transition: width 0.2s ease;
+}
+
+.header__nav-item--active::after,
+.header__nav-item:hover::after {
+  width: 100%;
+}
+
+/* ============================================================
+   ADAPTIVE / RESPONSIVE
+   ============================================================ */
+
+/* ── Tablet centering (768px) ── */
+@media (min-width: 768px) and (max-width: 1023px) {
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .header,
+  .nav-menu,
+  main {
+    max-width: var(--page-width);
+    width: 100%;
+  }
+
+  .header {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .nav-overlay {
+    max-width: var(--page-width);
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+
+/* ── Small mobile (< 768px) ── */
+@media (max-width: 767px) {
+  :root {
+    --container-pad: 20px;
+    --container-width: calc(100vw - 40px);
+  }
+
+  .hero {
+    min-height: auto;
+    padding-bottom: 40px;
+  }
+
+  .hero__content {
+    padding-top: 201px;
+  }
+
+  .hero__title {
+    font-size: 36px;
+    line-height: 1.25;
+  }
+
+  .hero__desc {
+    font-size: 16px;
+  }
+
+  .hero__actions {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .btn {
+    width: 100%;
+    max-width: 207px;
+  }
+
+  .auth-card {
+    width: 100%;
+    margin-top: 60px;
+  }
+
+  .auth-card__form {
+    width: 100%;
+    padding: 0 20px;
+  }
+
+  .crypto-globe {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    max-width: 320px;
+  }
+
+  .crypto-globe__ring--outer { width: 90%; height: 90%; }
+  .crypto-globe__ring--mid   { width: 79%; height: 79%; }
+  .crypto-globe__ring--inner { width: 70%; height: 70%; }
+
+  .crypto-globe__card-btn { width: 100%; max-width: 260px; }
+
+  .crypto-list {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .crypto-col { gap: 12px; }
+
+  .crypto-item__name,
+  .crypto-item__price { font-size: 15px; }
+
+  .popup__learn-title { font-size: 28px; }
+}
+
+/* ── Desktop (≥ 1024px) ── */
+@media (min-width: 1024px) {
+  :root {
+    --page-width: 1920px;
+    --container-pad: 80px;
+    --container-width: 1760px;
+  }
+
+  /* Header: show horizontal nav, hide burger */
+  .header__nav {
+    display: flex;
+  }
+
+  .header__burger {
+    display: none;
+  }
+
+  .header__inner {
+    padding: 0 80px;
+  }
+
+  /* Hero: two-column layout
+     Designed at 1920px: left=1167px, gap=168px, right=425px.
+     Below 1920px the gap and left column shrink fluidly; auth card stays 425px. */
+  .hero {
+    min-height: 1000px;
+  }
+
+  .hero__content {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: clamp(40px, 8.75vw, 168px); /* 168/1920=8.75% */
+    padding-top: 254px;
+    padding-left: 80px;
+    padding-right: 80px;
+    padding-bottom: 0;
+    max-width: 1920px;
+    margin: 0 auto;
+    box-sizing: border-box;
+  }
+
+  /* Left column: text + buttons */
+  .hero__left {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* H1: 96px at 1920px, scales down fluidly */
+  .hero__title {
+    font-size: clamp(48px, 5vw, 96px);
+    line-height: 1.2;
+    max-width: 60vw;
+  }
+
+  .hero__desc {
+    font-size: 18px;
+    line-height: 1.5;
+  }
+
+  .hero__actions {
+    margin-top: 37px;
+    flex-wrap: nowrap;
+  }
+
+  /* Auth card: right column, fixed 425px */
+  .auth-card {
+    flex: 0 0 425px;
+    width: 425px;
+    margin-top: 46px; /* y(auth card)=300 - y(content frame)=254 = 46px */
+  }
+
+  .auth-card__header {
+    padding: 30px 0 0;
+  }
+
+  .auth-card__title {
+    font-size: 32px;
+    padding: 0;
+    margin-bottom: 30px;
+  }
+
+  .auth-card__tabs {
+    margin: 0; /* tabs already full-width — no negative-margin trick */
+  }
+
+  .auth-card__body {
+    padding: 50px 0 40px;
+  }
+
+  .auth-card__form {
+    width: 345px;
+    padding: 0;
+  }
+
+  .crypto-item__name,
+  .crypto-item__price {
+    font-size: 18px;
+  }
+
+  /* Popup max-width scales with viewport */
+  .popup__box {
+    max-width: min(1760px, 90vw);
+  }
+}
+
+/* ── Wide desktop (≥ 1760px): three-column crypto section ──
+   The crypto columns + globe total 1579px.
+   Need 1579 + 2×80px padding = 1739px minimum viewport.
+   Use 1760px for a safe margin.
+   ============================================================ */
+@media (min-width: 1760px) {
+  /* Three-column layout: [left list] [globe] [right list] */
+  .crypto-section__inner {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 80px;
+  }
+
+  /* Dissolve the .crypto-list wrapper so columns become direct flex children */
+  .crypto-list {
+    display: contents;
+  }
+
+  .crypto-globe {
+    order: 2;
+    flex: 0 0 764px;
+    width: 764px;
+    height: 764px;
+  }
+
+  .crypto-globe__ring--outer {
+    width: 764px;
+    height: 764px;
+  }
+
+  .crypto-globe__ring--mid {
+    width: 672px;
+    height: 672px;
+  }
+
+  .crypto-globe__ring--inner {
+    width: 594px;
+    height: 594px;
+  }
+
+  .crypto-globe__card-label {
+    font-size: 32px;
+  }
+
+  .crypto-globe__card-btn {
+    width: 346px;
+  }
+
+  /* Left coin column: reverse item order so icon sits on the right */
+  .crypto-col:first-child {
+    order: 1;
+    flex: 0 0 432px;
+    gap: 60px; /* (445px col height − 5×41px items) / 4 gaps = 60px */
+  }
+
+  .crypto-col:first-child .crypto-item {
+    flex-direction: row-reverse;
+  }
+
+  .crypto-col:last-child {
+    order: 3;
+    flex: 0 0 373px;
+    gap: 60px;
+  }
+}

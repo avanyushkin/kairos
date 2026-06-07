@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kairos — Online Banking & Crypto in Real Time</title>
+    <meta name="description" content="Kairos is a modern online banking platform with real-time cryptocurrency prices, Google Sign-In, and a seamless financial dashboard." />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Kairos — Online Banking & Crypto in Real Time" />
+    <meta property="og:description" content="Modern online banking with live crypto prices and Google authentication." />
+    <!-- Font is self-hosted: no external request, no render-blocking, no CLS -->
+    <link rel="preload" href="/fonts/BrunoAce-Regular.woff2" as="font" type="font/woff2" crossorigin />
+    <!-- Preload LCP poster image with high priority -->
+    <link rel="preload" href="/assets/images/hero-bg.webp" as="image" fetchpriority="high" />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <!-- Skip link: visible on focus for keyboard users -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- ===================== HEADER ===================== -->
+    <header class="header" id="header">
+      <div class="header__inner">
+        <a href="/" class="header__logo" aria-label="Kairos — home">
+          <img src="/assets/icons/logo-kairos.svg" alt="Kairos" width="173" height="34" />
+        </a>
+        <!-- Desktop horizontal nav (hidden on mobile/tablet) -->
+        <nav class="header__nav" aria-label="Main navigation">
+          <ul class="header__nav-list" role="list">
+            <li><a href="#home" class="header__nav-item header__nav-item--active">HOME</a></li>
+            <li><a href="#about" class="header__nav-item">ABOUT US</a></li>
+            <li><a href="#projects" class="header__nav-item">PROJECTS</a></li>
+            <li><a href="#contact" class="header__nav-item">CONTACT US</a></li>
+          </ul>
+        </nav>
+        <!-- Mobile/tablet burger (hidden on desktop) -->
+        <button class="header__burger" id="burger-btn" aria-label="Open menu" aria-expanded="false" aria-controls="nav-menu">
+          <svg width="46" height="46" viewBox="0 0 46 46" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect width="46" height="46" rx="23" fill="#27005B"/>
+            <path d="M14 17H32M14 23H32M14 29H32" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- ===================== MOBILE NAV ===================== -->
+    <div class="nav-overlay" id="nav-overlay" aria-hidden="true"></div>
+    <nav class="nav-menu" id="nav-menu" role="navigation" aria-label="Main navigation" aria-hidden="true">
+      <button class="nav-menu__close" id="nav-close-btn" aria-label="Close menu">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M1 1L13 13M13 1L1 13" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <ul class="nav-menu__list" role="list">
+        <li><a href="#home" class="nav-menu__item nav-menu__item--active">HOME</a></li>
+        <li><a href="#about" class="nav-menu__item">ABOUT US</a></li>
+        <li><a href="#projects" class="nav-menu__item">PROJECTS</a></li>
+        <li><a href="#contact" class="nav-menu__item">CONTACT US</a></li>
+      </ul>
+    </nav>
+
+    <!-- ===================== HERO ===================== -->
+    <main id="main-content">
+      <section class="hero" id="home" aria-labelledby="hero-heading">
+        <!-- Background video (autoplay, muted — required by browsers) -->
+        <!-- Replace src with your actual video file to enable video background -->
+        <video
+          class="hero__video"
+          id="hero-video"
+          autoplay
+          muted
+          loop
+          playsinline
+          poster="/assets/images/hero-bg.webp"
+          aria-hidden="true"
+          tabindex="-1"
+        >
+          <source src="/assets/videos/hero.mp4" type="video/mp4" />
+          <source src="/assets/videos/hero.webm" type="video/webm" />
+        </video>
+        <div class="hero__overlay" aria-hidden="true"></div>
+
+        <div class="hero__content">
+          <!-- Left column: text + buttons (flex on desktop) -->
+          <div class="hero__left">
+            <!-- Hero text -->
+            <div class="hero__text-block">
+              <h1 class="hero__title" id="hero-heading">From the Field of All Possibility</h1>
+              <p class="hero__desc">
+                This is an emergent space where ideas are not created, but carefully discovered.
+                We navigate the vast potential to bring forth only the most resonant patterns and
+                coherent forms. Here, the future is curated from the infinite.
+              </p>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="hero__actions">
+              <button class="btn btn--learn" id="learn-more-btn" type="button">
+                <span class="btn__label">Learn More</span>
+                <span class="btn__arrow btn__arrow--dark" aria-hidden="true">
+                  <svg width="14" height="1" viewBox="0 0 14 1" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <line x1="0" y1="0.5" x2="14" y2="0.5" stroke="#270059" stroke-width="2"/>
+                  </svg>
+                </span>
+              </button>
+              <button class="btn btn--play" id="play-video-btn" type="button">
+                <span class="btn__label">Play Video</span>
+                <span class="btn__arrow btn__arrow--light" aria-hidden="true">
+                  <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <polygon points="4,2 14,8.5 4,15" fill="#270059"/>
+                  </svg>
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Auth card (right column on desktop) -->
+          <div class="auth-card" id="auth-card">
+            <div class="auth-card__header">
+              <h2 class="auth-card__title">Online Banking</h2>
+              <div class="auth-card__tabs" role="tablist">
+                <button class="auth-card__tab auth-card__tab--active" role="tab" aria-selected="true" aria-controls="auth-panel" id="tab-signin" data-tab="signin" tabindex="0">Sign In</button>
+                <button class="auth-card__tab" role="tab" aria-selected="false" aria-controls="auth-panel" id="tab-email" data-tab="email" tabindex="-1">Enter Email</button>
+              </div>
+            </div>
+            <div class="auth-card__body">
+              <div class="auth-card__form" id="auth-panel" role="tabpanel" aria-labelledby="tab-signin">
+                <!-- Google OAuth2 sign-in -->
+                <button class="google-btn" id="google-sign-in-btn" type="button" aria-label="Continue with Google">
+                  <span class="google-btn__icon" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                      <path fill="#EA4335" d="M5.266 9.765A7.077 7.077 0 0 1 12 4.909c1.69 0 3.218.6 4.418 1.582L19.91 3C17.782 1.145 15.055 0 12 0 7.27 0 3.198 2.698 1.24 6.65l4.026 3.115Z"/>
+                      <path fill="#34A853" d="M16.04 18.013c-1.09.703-2.474 1.078-4.04 1.078a7.077 7.077 0 0 1-6.723-4.823l-4.04 3.067A11.965 11.965 0 0 0 12 24c2.933 0 5.735-1.043 7.834-3l-3.793-2.987Z"/>
+                      <path fill="#4A90D9" d="M19.834 21c2.195-2.048 3.62-5.096 3.62-9 0-.71-.109-1.473-.272-2.182H12v4.637h6.436c-.317 1.559-1.17 2.766-2.395 3.558L19.834 21Z"/>
+                      <path fill="#FBBC05" d="M5.277 14.268A7.12 7.12 0 0 1 4.909 12c0-.782.125-1.533.357-2.235L1.24 6.65A11.934 11.934 0 0 0 0 12c0 1.92.445 3.73 1.237 5.335l4.04-3.067Z"/>
+                    </svg>
+                  </span>
+                  <span class="google-btn__text">Google</span>
+                </button>
+
+                <div class="auth-card__link-wrap">
+                  <a href="#" class="auth-card__link" id="start-journey-link">Start Your Journey Now!</a>
+                </div>
+
+                <div class="auth-card__divider" aria-hidden="true">
+                  <span class="auth-card__divider-line"></span>
+                  <span class="auth-card__divider-or">or</span>
+                  <span class="auth-card__divider-line"></span>
+                </div>
+
+                <button class="create-account-btn" id="create-account-btn" type="button">
+                  Create account
+                </button>
+              </div>
+
+              <!-- Shown after successful Google sign-in -->
+              <div class="auth-card__user" id="auth-user" hidden>
+                <img class="auth-card__user-avatar" id="auth-user-avatar" src="" alt="User avatar" />
+                <p class="auth-card__user-name" id="auth-user-name"></p>
+                <p class="auth-card__user-email" id="auth-user-email"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== CRYPTO SECTION ===================== -->
+      <section class="crypto-section" id="about" aria-label="Cryptocurrency live prices">
+        <div class="crypto-section__inner">
+          <!-- Globe with concentric ellipses -->
+          <div class="crypto-globe">
+            <div class="crypto-globe__rings" aria-hidden="true">
+              <div class="crypto-globe__ring crypto-globe__ring--outer"></div>
+              <div class="crypto-globe__ring crypto-globe__ring--mid"></div>
+              <div class="crypto-globe__ring crypto-globe__ring--inner"></div>
+            </div>
+            <div class="crypto-globe__card">
+              <p class="crypto-globe__card-label">Online Banking</p>
+              <button class="crypto-globe__card-btn" type="button">
+                <span>Add a Cryptocurrency</span>
+                <span class="crypto-globe__card-btn-arrow" aria-hidden="true">
+                  <svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12.5" cy="12.5" r="12.5" fill="#270059"/>
+                    <path d="M10 8l5 4.5-5 4.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Crypto price list -->
+          <div class="crypto-list" id="projects">
+            <ul class="crypto-col" role="list">
+              <li class="crypto-item" role="listitem" data-symbol="btcusdt" aria-label="Bitcoin: $87,965.62">
+                <img src="/assets/icons/coin-btc.svg" alt="" class="crypto-item__icon" aria-hidden="true" />
+                <span class="crypto-item__name">Bitcoin</span>
+                <span class="crypto-item__price" aria-hidden="true">$87,965.62</span>
+              </li>
+              <li class="crypto-item" role="listitem" data-symbol="ethusdt" aria-label="Ethereum: $2,950.04">
+                <img src="/assets/icons/coin-eth.svg" alt="" class="crypto-item__icon" aria-hidden="true" />
+                <span class="crypto-item__name">Ethereum</span>
+                <span class="crypto-item__price" aria-hidden="true">$2,950.04</span>
+              </li>
+              <li class="crypto-item" role="listitem" data-symbol="solusdt" aria-label="Solana: $124.53">
+                <img src="/assets/icons/coin-sol.svg" alt="" class="crypto-item__icon" aria-hidden="true" />
+                <span class="crypto-item__name">Solana</span>
+                <span class="crypto-item__price" aria-hidden="true">$124.53</span>
+              </li>
+              <li class="crypto-item" role="listitem" data-symbol="xrpusdt" aria-label="XRP: $1.862">
+                <img src="/assets/icons/coin-xrp.svg" alt="" class="crypto-item__icon" aria-hidden="true" />
+                <span class="crypto-item__name">XRP</span>
+                <span class="crypto-item__price" aria-hidden="true">$1.862</span>
+              </li>
+              <li class="crypto-item" role="listitem" data-symbol="usdcusdt" aria-label="USD Coin: $0.9997">
+                <img src="/assets/icons/coin-usdc.svg" alt="" class="crypto-item__icon" aria-hidden="true" />
+                <span class="crypto-item__name">USD Coin</span>
+                <span class="crypto-item__price" aria-hidden="true">$0.9997</span>
+              </li>
+            </ul>
+            <ul class="crypto-col" role="list">
+              <li class="crypto-item" role="listitem" data-symbol="bnbusdt" aria-label="Binance Coin: $844.91">
+                <img src="/assets/icons/coin-bnb.svg" alt="" class="crypto-item__icon" aria-hidden="true" />
+                <span class="crypto-item__name">Binance Coin</span>
+                <span class="crypto-item__price" aria-hidden="true">$844.91</span>
+              </li>
+              <li class="crypto-item" role="listitem" aria-label="Midnight: $0.06398">
+                <img src="/assets/icons/coin-night.svg" alt="" class="crypto-item__icon" aria-hidden="true" />
+                <span class="crypto-item__name">Midnight</span>
+                <span class="crypto-item__price" aria-hidden="true">$0.06398</span>
+              </li>
+              <li class="crypto-item" role="listitem" data-symbol="dogeusdt" aria-label="Dogecoin: $0.1278">
+                <img src="/assets/icons/coin-doge.svg" alt="" class="crypto-item__icon" aria-hidden="true" />
+                <span class="crypto-item__name">Dogecoin</span>
+                <span class="crypto-item__price" aria-hidden="true">$0.1278</span>
+              </li>
+              <li class="crypto-item" role="listitem" data-symbol="suiusdt" aria-label="Sui: $1.427">
+                <img src="/assets/icons/coin-sui.svg" alt="" class="crypto-item__icon" aria-hidden="true" />
+                <span class="crypto-item__name">Sui</span>
+                <span class="crypto-item__price" aria-hidden="true">$1.427</span>
+              </li>
+              <li class="crypto-item" role="listitem" aria-label="Tether: $1.000">
+                <img src="/assets/icons/coin-usdt.svg" alt="" class="crypto-item__icon" aria-hidden="true" />
+                <span class="crypto-item__name">Tether</span>
+                <span class="crypto-item__price" aria-hidden="true">$1.000</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ===================== VIDEO POPUP ===================== -->
+    <div class="popup" id="video-popup" role="dialog" aria-modal="true" aria-labelledby="video-popup-title" aria-hidden="true">
+      <div class="popup__backdrop" id="video-popup-backdrop"></div>
+      <div class="popup__box">
+        <h2 class="sr-only" id="video-popup-title">Kairos video</h2>
+        <button class="popup__close" id="video-popup-close" aria-label="Close video">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M1 1L13 13M13 1L1 13" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <div class="popup__video-wrap">
+          <video
+            class="popup__video"
+            id="popup-video"
+            controls
+            poster="/assets/images/hero-bg.webp"
+          >
+            <source src="/assets/videos/hero.mp4" type="video/mp4" />
+            <source src="/assets/videos/hero.webm" type="video/webm" />
+          </video>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== LEARN MORE POPUP ===================== -->
+    <div class="popup popup--learn" id="learn-popup" role="dialog" aria-modal="true" aria-labelledby="learn-popup-title" aria-hidden="true">
+      <div class="popup__backdrop" id="learn-popup-backdrop"></div>
+      <div class="popup__box popup__box--learn">
+        <button class="popup__close" id="learn-popup-close" aria-label="Close">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M1 1L13 13M13 1L1 13" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <div class="popup__learn-content">
+          <h2 class="popup__learn-title" id="learn-popup-title">From the Field of All Possibility</h2>
+          <p class="popup__learn-text">
+            This is an emergent space where ideas are not created, but carefully discovered.
+            We navigate the vast potential to bring forth only the most resonant patterns and
+            coherent forms. Here, the future is curated from the infinite.
+          </p>
+          <p class="popup__learn-text">
+            Kairos is a platform that bridges traditional banking with the emerging world of
+            digital assets. We provide secure, intuitive tools for managing your financial
+            future — from cryptocurrency portfolios to seamless online banking.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
