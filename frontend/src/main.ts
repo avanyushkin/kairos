@@ -12,7 +12,11 @@ initMobileNav();
 initPopups();
 initHeroVideo();
 initAuth();
-initCryptoPrices();
+const disposeCrypto = initCryptoPrices();
+
+if (import.meta.hot) {
+  import.meta.hot.dispose(() => disposeCrypto());
+}
 
 // Global Escape key: close whichever layer is open
 document.addEventListener('keydown', (e: KeyboardEvent) => {
