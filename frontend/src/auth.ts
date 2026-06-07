@@ -1,6 +1,6 @@
 const GOOGLE_CLIENT_ID = '574464533205-j96ct2rhjsqkov2j721glf3rk653lupu.apps.googleusercontent.com';
 
-const BACKEND_URL = 'http://localhost:8080';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:8080';
 
 // ── Backend verification ──────────────────────────────────────
 
