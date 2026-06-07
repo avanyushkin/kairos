@@ -7,6 +7,7 @@ const WS_URL =
   SYMBOLS.map(s => `${s}@miniTicker`).join('/');
 
 const BATCH_INTERVAL_MS = 50;
+const RECONNECT_DELAY_MS = 5000;
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -29,13 +30,6 @@ interface BinanceMessage {
 }
 
 // ── EventBatcher ──────────────────────────────────────────────
-//
-// Accumulates events and flushes them as a single batch every
-// BATCH_INTERVAL_MS milliseconds.
-//
-// Buffer swap before flush is the key invariant: any event that
-// arrives while flush() is executing goes into the *next* batch,
-// never into the one currently being processed.
 
 class EventBatcher<T> {
   private buffer: T[] = [];
@@ -60,21 +54,18 @@ class EventBatcher<T> {
       clearInterval(this.timer);
       this.timer = null;
     }
-    this.flush(); // drain any remaining events before teardown
+    this.flush();
   }
 
   private flush(): void {
     if (this.buffer.length === 0) return;
     const batch = this.buffer;
-    this.buffer = []; // atomic swap — new events go to fresh buffer
+    this.buffer = []; // atomic swap — events during flush go to next batch
     this.onFlush(batch);
   }
 }
 
 // ── CryptoModel (ModelFactory) ────────────────────────────────
-//
-// Holds the canonical price state. setState merges a batch of
-// updates in a single pass, then notifies all subscribers once.
 
 class CryptoModel {
   private readonly prices = new Map<string, number>();
@@ -94,9 +85,58 @@ class CryptoModel {
 
   private notify(): void {
     const state: CryptoState = { prices: this.prices };
-    for (const listener of this.listeners) {
-      listener(state);
-    }
+    for (const listener of this.listeners) listener(state);
+  }
+}
+
+// ── WebSocket reconnect generator ─────────────────────────────
+//
+// while (true) loop: yield a fresh WebSocket each iteration.
+// After each yield, await its close event (or abort signal),
+// then await a delay before the next connection attempt.
+// AbortSignal cuts both awaits short — no dangling timers or sockets.
+
+async function* wsReconnect(
+  url: string,
+  signal: AbortSignal,
+): AsyncGenerator<WebSocket> {
+  while (true) {
+    const ws = new WebSocket(url);
+    yield ws;
+
+    // Wait for socket to close (error also closes it)
+    await new Promise<void>(resolve => {
+      const done = (): void => resolve();
+      ws.addEventListener('close', done, { once: true });
+      ws.addEventListener('error', () => { ws.close(); done(); }, { once: true });
+      signal.addEventListener('abort', () => { ws.close(); done(); }, { once: true });
+    });
+
+    if (signal.aborted) return;
+
+    // Wait before reconnecting; abort cuts the delay short
+    await new Promise<void>(resolve => {
+      const t = setTimeout(resolve, RECONNECT_DELAY_MS);
+      signal.addEventListener('abort', () => { clearTimeout(t); resolve(); }, { once: true });
+    });
+
+    if (signal.aborted) return;
+  }
+}
+
+// ── WebSocket consumer ────────────────────────────────────────
+
+async function runWebSocket(
+  onMessage: (update: PriceUpdate) => void,
+  signal: AbortSignal,
+): Promise<void> {
+  for await (const ws of wsReconnect(WS_URL, signal)) {
+    ws.addEventListener('message', (event: MessageEvent<string>) => {
+      const msg = JSON.parse(event.data) as BinanceMessage;
+      const symbol = msg.stream.replace('@miniTicker', '');
+      const price = parseFloat(msg.data.c);
+      if (!isNaN(price)) onMessage({ symbol, price });
+    });
   }
 }
 
@@ -121,29 +161,7 @@ function buildPriceMap(): Map<string, HTMLElement> {
   return map;
 }
 
-function connectWebSocket(
-  onMessage: (update: PriceUpdate) => void,
-  onClose: () => void,
-): WebSocket {
-  const ws = new WebSocket(WS_URL);
-
-  ws.addEventListener('message', (event: MessageEvent<string>) => {
-    const msg = JSON.parse(event.data) as BinanceMessage;
-    const symbol = msg.stream.replace('@miniTicker', '');
-    const price = parseFloat(msg.data.c);
-    if (!isNaN(price)) onMessage({ symbol, price });
-  });
-
-  ws.addEventListener('error', () => ws.close());
-  ws.addEventListener('close', onClose);
-
-  return ws;
-}
-
 // ── Public API ────────────────────────────────────────────────
-//
-// Returns a dispose function — call it to stop the WebSocket,
-// flush the batcher, and unsubscribe from the model (unmount).
 
 export function initCryptoPrices(): () => void {
   const domMap  = buildPriceMap();
@@ -152,7 +170,6 @@ export function initCryptoPrices(): () => void {
     batch => model.setState(batch),
   );
 
-  // Model → DOM: one render per batch
   const unsubscribe = model.subscribe(({ prices }) => {
     prices.forEach((price, symbol) => {
       const el = domMap.get(symbol);
@@ -162,21 +179,16 @@ export function initCryptoPrices(): () => void {
 
   batcher.start();
 
-  let ws: WebSocket;
+  const controller = new AbortController();
 
-  const reconnect = (): void => {
-    ws = connectWebSocket(
-      update => batcher.push(update),
-      ()     => setTimeout(reconnect, 5000),
-    );
-  };
-
-  reconnect();
+  void runWebSocket(
+    update => batcher.push(update),
+    controller.signal,
+  );
 
   return () => {
-    ws.removeEventListener('close', reconnect);
-    ws.close();
-    batcher.stop();
+    controller.abort(); // exits the while(true) loop and both awaits
+    batcher.stop();     // flushes remaining buffer, clears interval
     unsubscribe();
   };
 }
